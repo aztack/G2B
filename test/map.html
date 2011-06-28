@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml"> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/> 
+    <title>Google Maps JavaScript API Example: Simple Map</title> 
+    <!script src="http://maps.google.com/maps?file=api&amp;v=2&amp;sensor=false&amp;key=ABQIAAAAzr2EBOXUKnm_jVnk0OJI7xSosDVG8KKPE1-m51RBrvYughuyMxQ-i1QfUnH94QxWIa6N4U6MouMmBA"
+            type="text/javascript"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/api?v=1.1&services=true"></script>
+	<script type="text/javascript" src="http://img.baidu.com/js/tangram-base-core-1.3.7.js"></script>
+	<script type="text/javascript" src="../g2b.o.js"></script>
+  </head> 
+  <body onload="initialize()" onunload="GUnload()"> 
+    <div id="map_canvas" style="width: 500px; height: 300px"></div> 
+	<input type="button" id="panto" value="map.panTo"/>
+	<input type="button" id="zoom" value="map.get/setZoom"/>
+	<input type="button" id="savepos" value="map.savePosition"/>
+	<input type="button" id="restorepos" value="map.returnToPosition"/>
+	<input type="button" id="panby" value="map.panBy"/>
+	<input type="button" id="panDir" value="map.panDirection"/>
+	<script type="text/javascript">
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        map = new GMap2(document.getElementById("map_canvas"));
+        map.setCenter(new GLatLng(39.909,116.3975), 13);
+		map.setUIToDefault();
+      }
+    } 
+	baidu.G("panto").onclick = function(){
+		var from = map.getCenter();
+		var to = new GLatLng(from.lat()+0.01,from.lng()+0.01);
+		map.panTo(to);
+	}
+	baidu.G("zoom").onclick = function(){
+		map.setZoom(map.getZoom()+1);
+	}
+	baidu.G("savepos").onclick = function(){
+		map.savePosition();
+	}
+	baidu.G("restorepos").onclick = function(){
+		map.returnToSavedPosition();
+	}
+	baidu.G("panby").onclick = function(){
+		map.panBy(new GSize(100,100));
+	}
+	baidu.G("panDir").onclick = function(){
+		map.panDirection(1,1);
+	}
+    </script> 
+  </body> 
+</html> 

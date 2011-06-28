@@ -22,7 +22,7 @@
 
 	var INTERNAL = function(x)	{return "_"+x+"_";};
 	//globals	
-	var DEBUG = false,EMPTY_FN = function(){};
+	var DEBUG = true,EMPTY_FN = function(){};
 	_gprivate = {maps:[],activeMap:null,version:0.1};
 	_G.___G2B___ = _gprivate;
 	
@@ -56,8 +56,7 @@
 			_G.console.log(message);
 		}
 	}
-	var _$ = EMPTY_FN;
-		//DEBUG ? log : EMPTY_FN;
+	var _$ = DEBUG ? log : EMPTY_FN;
 
 	/**
 	 * declare a 'constant' in scope
@@ -582,6 +581,10 @@
 	])
 	.dispatcher()
 	.impl("setCenter",function(center,zoom,type){
+		//zoom should not be undefined or zero!
+		if(!zoom){
+			zoom = this._impl.getZoom();
+		}
 		this._impl.centerAndZoom(_(center),zoom);
 		//尝试得到当前地图所在显示的城市
 		this._trySetCurrentCity();
@@ -715,6 +718,17 @@
 	.reimpl("panTo",function(latlng){
 		this._impl.panTo(_(latlng));
 	})
+	.impl("panBy",function(size){
+		this._impl.panBy(size.width,size.height);
+	})
+	.impl("panDirection",function(dx,dy){
+		var s = this._impl.getSize();
+		this._impl.panBy(dx*(s.width/2),dy*(s.height/2));
+	})
+	.impl("getPane",function(pane){
+		var div = this._impl.getPanes()[pane];
+		return div;
+	})
 	.impl("fromLatLngToContainerPixel",function(latlng){
 		var pixel = this._impl.pointToPixel(_(latlng));
 		return new GPoint(pixel.x,pixel.y);
@@ -735,7 +749,7 @@
 		return this._impl.getZoom();
 	})
 	.reimpl("setZoom",function(zoom){
-		this._impl.setZoom(zoom);
+		this._impl.setZoom ? this._impl.setZoom(zoom) : this._impl.zoomTo(zoom);
 	})
 	.impl("getBoundsZoomLevel",function(bounds){
 		var sw = _(bounds).getSouthWest(),ne = _(bounds).getNorthEast();
@@ -748,12 +762,12 @@
 	})
 	.impl("savePosition",function(){
 		//TODO multi map
-		_gprivate.lastPosition = this.getCenter();
+		this._lastPosition = this.getCenter();
 	})
 	.impl("returnToSavedPosition",function(){
 		//TODO multi map
-		var pos = _gprivate.lastPosition;
-		pos && this.setCenter(pos);
+		var pos =this._lastPosition;
+		pos && this.panTo(pos);
 	})
 	.impl("zoomIn",function(latlng,center,continuose){
 		this._impl.zoomIn();
@@ -1404,17 +1418,6 @@
 			len += map.getDistance(points[i-1],points[i]);
 		}
 		return len;
-	})
-	.impl("panBy",function(size){
-		this._impl.panBy(size.width,size.height);
-	})
-	.impl("panDirection",function(dx,dy){
-		var s = this._impl.getSize();
-		this._impl.panBy(dx*(s.width/2),dy*(s.height/2));
-	})
-	.impl("getPane",function(pane){
-		var div = this._impl.getPanes()[pane];
-		return div;
 	})
 	.impl("isHidden",function(){
 		return !this._impl.isVisible();
