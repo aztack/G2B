@@ -1,0 +1,1 @@
+newcopyright(copyright:GCopyright)

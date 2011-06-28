@@ -1,0 +1,1 @@
+changed(hasTrafficInView:Boolean)

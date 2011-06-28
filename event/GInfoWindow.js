@@ -1,0 +1,5 @@
+closeclick()
+maximizeclick()
+maximizeend()
+restoreclick()
+restoreend()

@@ -1,0 +1,8 @@
+remove()
+visibilitychanged(isVisible:Boolean)
+click(latlng:GLatLng)
+mouseover()
+mouseout()
+lineupdated()
+endline()
+cancelline()

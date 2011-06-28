@@ -1,0 +1,6 @@
+yawchanged(yaw:Number)
+pitchchanged(pitch:Number)
+zoomchanged(zoom:Number)
+error(errorCode:GStreetviewPanorama.ErrorValues)
+initialized(location:GStreetviewLocation)
+initialized(location:GStreetviewLocation)

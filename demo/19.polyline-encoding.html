@@ -1,0 +1,39 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:v="urn:schemas-microsoft-com:vml"> 
+  <head> 
+    <meta http-equiv="content-type" content="text/html; charset=utf-8"/> 
+    <title>Google 地图 JavaScript API 示例: 编码折线</title> 
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=1.2&services=true"></script>
+	<script type="text/javascript" src="http://img.baidu.com/js/tangram-base-core-1.3.7.js"></script>
+	<script type="text/javascript" src="../g2b.o.js"></script>
+    <script type="text/javascript"> 
+ 
+    function initialize() {
+      if (GBrowserIsCompatible()) {
+        var map = new GMap2(document.getElementById("map_canvas"));
+        map.setCenter(new GLatLng(39.917,116.397), 14);
+        
+		// 添加一条连接北京和上海的编码折线
+        var encodedPoints = "mgsrFixleUvw@YoBmbCKulBa@s_DjuFdBlOfJzO~TnOkDvu@scAxpCmxChz@qpAzeAagBboBurAxoAg{AnmBknA|aBwaB`bBw}CfpCadCprBgsD~wDy{DtmBooGlhKktJ`kDsfQv{M{bHhkDcsOdaRhhCvwNc~EduVucAxkSia@n_S~zK|v^rjDvia@h`]huZihC~vZr_N|`jDftcAxndC{flAd`KrqG~xqAinc@~{_@qen@|{|Afnc@ta~EqknA~dd@hvIrjdBfppAj~dB_iRroo@g|i@fjyD_mEb`]sen@wkc@mteFtgA}re@rmDgnjCrqpA_dmCl~t@cyo@}vAmtm@p}Diuf@tsEwiVlnGaiGhQszIun@ioFd^ylDuMcgHjg@ioFx@q}B|U{h@hs@wdAjr@al@fGuf@pTyJwRwv@vAwkAm`@scAmKuWcCqNj@yN";
+        var encodedLevels = "B@@@@@@@@@@@@@@@@@@@@@AAAAAAAAAAAAABBBBBBBBBBBBAAAAAAAAAAAAA@@@@@@@@@@@@@B"; 
+        var encodedPolyline = new GPolyline.fromEncoded({
+        		color: "#3333cc",
+        		weight: 4,
+        		points: encodedPoints,
+        		levels: encodedLevels,
+        		zoomFactor: 32,
+        		numLevels: 4
+        	});
+        map.addOverlay(encodedPolyline);
+		map.enableScrollWheelZoom();
+      }
+    }
+ 
+    </script> 
+  </head> 
+  <body onload="initialize()" onunload="GUnload()"> 
+    <div id="map_canvas" style="width: 500px; height: 300px"></div> 
+  </body> 
+</html> 
