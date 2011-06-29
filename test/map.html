@@ -18,6 +18,7 @@
 	<input type="button" id="restorepos" value="map.returnToPosition"/>
 	<input type="button" id="panby" value="map.panBy"/>
 	<input type="button" id="panDir" value="map.panDirection"/>
+	<input type="button" id="mkindex" value="mkindex"/>
 	<script type="text/javascript">
     function initialize() {
       if (GBrowserIsCompatible()) {
@@ -46,6 +47,16 @@
 	baidu.G("panDir").onclick = function(){
 		map.panDirection(1,1);
 	}
+	var idx = 99;
+	baidu.G("mkindex").onclick = function(){
+		var mk = new GMarker(map.getCenter(),{
+			zIndexProcess:function(){return idx++;}
+		});
+		map.addOverlay(mk);
+		GEvent.addListener(mk,"click",function(x){
+			alert(mk._impl.zIndex);
+		});
+	};
     </script> 
   </body> 
 </html> 

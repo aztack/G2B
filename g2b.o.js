@@ -535,6 +535,12 @@
 			options["icon"] = _(opt.icon) ||new BMap.Icon(opt.icon.image,opt.icon.size);
 		}
 		this._impl = new BMap.Marker(_(latlng),options);
+		if(typeof(opt.zIndexProcess)==="function"){
+			var zIndex = opt.zIndexProcess();
+			if(!isNaN(zIndex)){
+				this._impl.setZIndex(zIndex);
+			}
+		}
 	},[
 		BMap.Marker
 	])
