@@ -965,6 +965,12 @@
 			//	:['cancelline',[]]
 		}
 	};
+
+	var EVENT_EXTRA = {
+		'GMap2':{
+			'moveend':['zoomend',['Number','Number']]
+		}
+	};
 	
 	function translateEventArgs(src,eventName,e){
 		if(!src || !e)return false;
@@ -990,6 +996,8 @@
 					args.push(e.overlay);
 				}else if(type=="Element"){
 					args.push(e.target);
+				}else if(type=="Number" && i===0){//zoomend oldlevel
+				}else if(type=="Number" && i===1){//zoomend newlevel
 				}
 			}
 		}
@@ -1000,14 +1008,22 @@
 	 */
 	Klass("GEvent",{_slot:[]})
 	.statik("addListener",function(src,event,handler){
+		var ctor = src.constructor,
+			name = ctor.name || ctor.__name__;
+
 		if(src.addEventListener){
-			src.addEventListener(event,function(e){
+			var callback = function(e){
 				var a = translateEventArgs(src,event,e);
 				handler.apply(this,a);
-			});
-			GEvent._slot.push({event:event,handler:handler,src:src});
+			};
+			src.addEventListener(event,callback);
+			//patch
+			if(EVENT_EXTRA[name]){
+				extra = EVENT_EXTRA[name][event];
+				extra && src.addEventListener(extra[0],callback);
+			}
+			GEvent._slot.push({event:event,handler:handler,src:src,proxy:callback});
 		}else{
-			var ctor = src.constructor;
 			throw Error(src +"{" + (ctor.name || ctor.__name__ ||ctor)+ "} does not dispatch event!");
 		}
 		return handler;
@@ -1021,7 +1037,7 @@
 			var o = GEvent._slot[i];
 			if(o.handler !== handler)continue;
 			if(o.src.removeEventListener){
-				o.src.removeEventListener(o.event,o.handler);
+				o.src.removeEventListener(o.event,o.proxy);
 				GEvent._slot.splice(i,1);
 				return;
 			}
