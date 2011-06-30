@@ -571,14 +571,38 @@
 	.end();
 	
 	/**
+	 * GMapType
+	 */
+	Klass("GMapType",function(layers,projection,name,opts){
+		if(!opts.impl){
+			throw Error("Sorry,you can not create GMapType");
+		}
+		this._impl = opts.impl;
+	})
+	.impl("getMinimumResolution",function(){
+		return this._impl.zoomLevelMin || this._impl.getMinZoom();
+	})
+	.impl("getMaximumResolution",function(){
+		return this._impl.zoomLevelMax || this._impl.getMaxZoom();
+	})
+	.impl("getTileSize",function(){
+		return this._impl.tileSize || this._impl.getTileSize();
+	})
+	.noimpl(
+		"getSpanZoomLevel","getBoundsZoomLevel","getName","getTileLayers",
+		"getMaxZoomAtLatLng","getTextColor","getLinkColor","getErrorMessage",
+		"getCopyrights","getAlt","getHeading"
+	)
+	.end();
+	/**
 	 * GMap2
 	 */
 	//我们的一些API需要提供当前城市
 	//但是Google的不需要。这里保存下所有创建的map实例
 	//最好的情况是就一个实例，此时map._city就是当前城市
 	//如果有多余一个实例，还要想一个策略设置activeCity
-	Klass("GMap2",function(e){
-		this._impl = new BMap.Map(e);
+	Klass("GMap2",function(e,opt){
+		this._impl = new BMap.Map(e,opt);
 		this._config = {enableInfoWindow:true};
 		_gprivate.maps.push(this);
 		_gprivate.activeMap = this;
@@ -662,14 +686,25 @@
 		this._impl.removeControl(_(c));
 	})
 	.reimpl("setMapType",function(type){
-		if(type!=BMAP_NORMAL_MAP && type!=BMAP_NORMAL_MAP){
+		if(type!=BMAP_NORMAL_MAP && type!=BMAP_PERSPECTIVE_MAP){
 			throw Error("map type "+type+" is not supported!");
 		}
 		this._impl.setMapType(type);
 	})
-	.reimpl("getMapTypes",function(){
-		//TODO!
-		return [];
+	.impl("getCurrentMapType",function(){
+		var impl = null,mt = null;
+		if(typeof(BMap.MapType)==="function"){
+			//1.2
+			impl = this._impl.getMapType();
+		}else{
+			//1.1
+			impl = BMap.MapType[this._impl.getMapType()];
+		}
+		mt = new GMapType(null,null,null,{impl:impl});
+		return mt;
+	})
+	.impl("getMapTypes",function(){
+		return [this.getCurrentMapType()];
 	})
 	.impl("_trySetCurrentCity",function(callback){
 		var geo = new BMap.Geocoder(),m = this._impl,that = this;
@@ -996,9 +1031,13 @@
 					args.push(e.overlay);
 				}else if(type=="Element"){
 					args.push(e.target);
-				}else if(type=="Number" && i===0){//zoomend oldlevel
-				}else if(type=="Number" && i===1){//zoomend newlevel
 				}
+				/*
+				else if(type=="Number" && i===0){//zoomend oldlevel
+					void(0);
+				}else if(type=="Number" && i===1){//zoomend newlevel
+					void(0);
+				}*/
 			}
 		}
 		return args;
@@ -1770,7 +1809,7 @@
 		//call inject on real _impl right after it is created
 		for(var i = 0;i<this.listeners.length;++i){
 			var o = this.listeners[i];
-			target.addEventListener(o.event,o.handler);
+			target.addEventListener && target.addEventListener(o.event,o.handler);
 		}
 	})
 	.end();
@@ -1789,18 +1828,24 @@
 	.impl("loadFromWaypoints",function(destAndSrcAry,opt){
 		opt = opt || {};
 		var mode = opt.travelMode,m = this._map,that = this;
-		opt = {renderOptions:{map:m,autoViewport:true}};
+		opt.renderOptions = {map:m,autoViewport:true};
 		if(opt.avoidHighways){
 			opt.drivingPolicy = BMAP_DRIVING_POLICY_AVOID_HIGHWAYS;
 		}
 		var holder = this._impl;
 		//create real _impl
-		if(mode === G_TRAVEL_MODE_DRIVING){
-			this.__impl = new BMap.DrivingRoute(m,opt);
-		}else{
-			this.__impl = new BMap.WalkingRoute(m,opt);
+		if(!this.__impl){
+			if(mode === G_TRAVEL_MODE_DRIVING){
+				this.__impl = new BMap.DrivingRoute(m,opt);
+			}else{
+				this.__impl = new BMap.WalkingRoute(m,opt);
+			}
+			holder.inject(this.__impl);
+			this.__impl.setSearchCompleteCallback(function(result){
+				that._result = result;
+				GEvent.trigger(that,"load");
+			});
 		}
-		holder.inject(this.__impl);
 
 		var dest = destAndSrcAry[1],src = destAndSrcAry[0];
 		if(typeof(dest[0])==="string"){
@@ -1821,10 +1866,6 @@
 		if(baidu.lang.isArray(src)){
 			src = new BMap.Point(TO_BLNG(src[1]),TO_BLAT(src[0]));
 		}
-		this.__impl.setSearchCompleteCallback(function(result){
-			that._result = result;
-			GEvent.trigger(that,"load");
-		});
 		this.__impl.search(dest,src);
 	})
 	.impl("clear",function(){
