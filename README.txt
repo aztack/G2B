@@ -1,5 +1,5 @@
 			Google Map to Baidu Map 迁移工具说明
-                               aztack@163.com
+
 0) 变更记录
 version 0.1
 	- 修正GLatLngBounds无参数初始化加了坐标偏移的问题
