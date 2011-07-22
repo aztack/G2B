@@ -11,19 +11,23 @@
 	<script type="text/javascript" src="../g2b.o.js"></script>
   </head> 
   <body onload="initialize()" onunload="GUnload()"> 
-    <div id="map_canvas" style="width: 500px; height: 300px"></div> 
-	<input type="button" id="panto" value="map.panTo"/>
-	<input type="button" id="zoom" value="map.get/setZoom"/>
-	<input type="button" id="savepos" value="map.savePosition"/>
-	<input type="button" id="restorepos" value="map.returnToPosition"/>
-	<input type="button" id="panby" value="map.panBy"/>
-	<input type="button" id="panDir" value="map.panDirection"/>
-	<input type="button" id="mkindex" value="mkindex"/>
-	<input type="button" id="maptype" value="maptype"/>
+    <div id="container" style="width: 500px; height: 300px;float:left"></div> 
+	<div id="buttons" style="clear:both">
+		<input type="button" id="panto" value="map.panTo"/>
+		<input type="button" id="zoom" value="map.get/setZoom"/>
+		<input type="button" id="savepos" value="map.savePosition"/>
+		<input type="button" id="restorepos" value="map.returnToPosition"/>
+		<input type="button" id="panby" value="map.panBy"/>
+		<input type="button" id="panDir" value="map.panDirection"/>
+		<input type="button" id="mkindex" value="mkindex"/>
+		<input type="button" id="maptype" value="maptype"/>
+		<input type="button" id="resizectn" value="resizectn"/>
+		<input type="button" id="checkResize" value="checkResize"/>
+	</div>
 	<script type="text/javascript">
     function initialize() {
       if (GBrowserIsCompatible()) {
-        map = new GMap2(document.getElementById("map_canvas"));
+        map = new GMap2(document.getElementById("container"),{enableAutoResize:false});
         map.setCenter(new GLatLng(39.909,116.3975), 13);
 		map.setUIToDefault();
       }
@@ -63,6 +67,15 @@
 		var a = map.getCurrentMapType();
 		alert("MinimumResolution:"+a.getMinimumResolution()+",MaximumResolution:"+a.getMaximumResolution()+",tileSize:"+a.getTileSize());
 		console.log(map.getMapTypes());
+	};
+	baidu.G("resizectn").onclick = function(){
+		debugger;
+		var ctn = baidu.G("container");
+		var w = parseInt(ctn.style.width); 
+		ctn.style.width = w + 10 + "px";
+	};
+	baidu.G("checkResize").onclick = function(){
+		map.checkResize();
 	};
     </script> 
   </body> 

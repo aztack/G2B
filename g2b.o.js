@@ -22,7 +22,7 @@
 
 	var INTERNAL = function(x)	{return "_"+x+"_";};
 	//globals	
-	var DEBUG = true,EMPTY_FN = function(){};
+	var DEBUG = false,EMPTY_FN = function(){};
 	_gprivate = {maps:[],activeMap:null,version:0.1};
 	_G.___G2B___ = _gprivate;
 	
@@ -48,7 +48,7 @@
 		var t = document.createElement("script");
 		t.type = "text/javascript";
 		t.src = "http://img.baidu.com/js/tangram-base-core-1.3.7.js";
-		document.body.appendChild(t);
+		document.getElementsByTagName("head")[0].appendChild(t);
 	}
 
 	function log(message){
@@ -597,7 +597,7 @@
 	/**
 	 * GMap2
 	 */
-	//我们的一些API需要提供当前城市
+	//百度地图的一些API需要提供当前城市
 	//但是Google的不需要。这里保存下所有创建的map实例
 	//最好的情况是就一个实例，此时map._city就是当前城市
 	//如果有多余一个实例，还要想一个策略设置activeCity
@@ -709,8 +709,14 @@
 	.impl("_trySetCurrentCity",function(callback){
 		var geo = new BMap.Geocoder(),m = this._impl,that = this;
 		geo.getLocation(m.getCenter(),function(result){
+			/*
 			if(result===null){
 				throw Error("Can not get current city!");
+			}
+			*/
+			if(result===null){
+				if(typeof(callback)=="function")callback(m,null);
+				return;
 			}
 			that._city = result.addressComponents.city;
 			m.setCurrentCity(that._city);
@@ -821,8 +827,8 @@
 		var w = this._impl.getInfoWindow();
 		return new GInfoWindow(w);
 	})
-	.dummy("checkResize")
 	.same(
+		"checkResize",
 		"getSize",
 		"enableDragging",
 		"disableDragging",
@@ -834,7 +840,9 @@
 		"disableContinuousZoom",
 		"enablePinchToZoom",
 		"disablePinchToZoom",
-		"clearOverlays","getContainer","closeInfoWindow"
+		"clearOverlays",
+		"getContainer",
+		"closeInfoWindow"
 	)
 	.impl("enableInfoWindow",function(){
 		this._config.enableInfoWindow = true;
