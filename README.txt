@@ -6,10 +6,14 @@ version 0.1
 	- 增加GIcon拷贝构造时更新image,iconSize,iconAnchor,infoWindowAnchor属性到实现
 	- 修正GMarker构造时options的icon属性没有正确设置的问题
 	
-	2011-6-29
+	2011-06-29
 	- 构造GMarker时传入的option支持zIndexProcess,但只在构造时调用一次，并设置marker的zIndex
 	- 增加GMapType,但是用户不能主动创建该类实例
 	- 修复GDirection.loadFromWaypoints连续调用不清除上一次结果的问题
+	
+	2011-08-02
+	- 2011年07月29日 API 1.2 Map增加mouseover和mouseout事件,做相应的修改
+	- 修复map,marker事件部分的bug
 
 1) G2B介绍
 	G2B是一个'个人的','实验性质'的工程

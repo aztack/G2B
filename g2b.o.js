@@ -920,10 +920,14 @@
 				:['removeoverlay',['GOverlay']],
 			'clearoverlays'
 				:['clearoverlays',[]],
+			/**
+			 * 2011年07月29日 API 1.2 Map增加mouseover和mouseout事件
+			 * 百度地图的mouseover和mouseout没有提供坐标信息，所以在回调中得不到GLatLng
+			 */
 			'mouseover'
-				:['-mouseover',['GLatLng']],
+				:['mouseover',[/* GLatLng */]],
 			'mouseout'
-				:['-mouseout',['GLatLng']],
+				:['mouseout',[]],
 			'mousemove'
 				:['mousemove',['GLatLng']],
 			'dragstart'
@@ -957,7 +961,11 @@
 			'infowindowopen'
 				:['infowindowopen',[]],
 			'infowindowbeforeclose'
-				:['infowindowbeforeclose',[]],
+				:['-infowindowbeforeclose',[]],
+			/**
+			 * 直接点击InfoWindow上的关闭按钮不会触发这个事件
+			 * 点击InfoWindow和marker以外的地图才会触发这个事件
+			 */
 			'infowindowclose'
 				:['infowindowclose',[]],
 			'remove'
@@ -1015,15 +1023,24 @@
 		}
 	};
 	
-	function translateEventArgs(src,eventName,e){
-		if(!src || !e)return false;
+	function translateEventData(src,eventName){
+		if(!src || !eventName)return null;
 		var ctor = src.constructor,
-			name = ctor.name || ctor.__name__,
-			args = [];
+			name = ctor.name || ctor.__name__;
 		if(!name || !EVENT_SINGNATUR[name]){
-			throw Error("Don not support events on "+name+"!");
+			return null;
 		}
 		var meta = EVENT_SINGNATUR[name][eventName];
+		if(meta && meta[0] && meta[0].substr(0,1)==="-"){
+			return null;
+		}
+		return meta;
+	}
+	
+	function translateEventArgs(src,eventName,e){
+		if(!src || !e)return false;
+		var meta = translateEventData(src,eventName),
+			args = [];
 		if(!e || !meta){
 			return [e];
 		}else if(meta[1].length===0){
@@ -1057,13 +1074,16 @@
 	.statik("addListener",function(src,event,handler){
 		var ctor = src.constructor,
 			name = ctor.name || ctor.__name__;
-
+		//get the meta data about the event
+		var meta = translateEventData(src,event);
+		if(!meta)return handler;
+		
 		if(src.addEventListener){
 			var callback = function(e){
 				var a = translateEventArgs(src,event,e);
 				handler.apply(this,a);
 			};
-			src.addEventListener(event,callback);
+			src.addEventListener(meta[0],callback);
 			//patch
 			if(EVENT_EXTRA[name]){
 				extra = EVENT_EXTRA[name][event];
